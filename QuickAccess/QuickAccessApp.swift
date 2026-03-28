@@ -80,6 +80,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 item.tag = index
                 removeSubmenu.addItem(item)
             }
+            removeSubmenu.addItem(NSMenuItem.separator())
+            let removeAllItem = NSMenuItem(title: "Remove All", action: #selector(removeAllFavorites), keyEquivalent: "")
+            removeAllItem.target = self
+            removeSubmenu.addItem(removeAllItem)
+
             let removeItem = NSMenuItem(title: "Remove…", action: nil, keyEquivalent: "")
             removeItem.submenu = removeSubmenu
             menu.addItem(removeItem)
@@ -136,6 +141,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func removeFavorite(_ sender: NSMenuItem) {
         let path = favoritesManager.favorites[sender.tag]
         favoritesManager.remove(path)
+    }
+
+    @objc func removeAllFavorites() {
+        let alert = NSAlert()
+        alert.messageText = "Remove all favorites?"
+        alert.informativeText = "This cannot be undone."
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "Remove All")
+        alert.addButton(withTitle: "Cancel")
+        NSApp.activate(ignoringOtherApps: true)
+        if alert.runModal() == .alertFirstButtonReturn {
+            favoritesManager.removeAll()
+        }
     }
 
     @objc func toggleLoginItem(_ sender: NSMenuItem) {

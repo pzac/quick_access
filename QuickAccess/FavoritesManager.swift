@@ -23,6 +23,10 @@ class FavoritesManager {
         save(current)
     }
 
+    func removeAll() {
+        save([])
+    }
+
     private func save(_ items: [String]) {
         UserDefaults.standard.set(items, forKey: key)
         NotificationCenter.default.post(name: Self.didChangeNotification, object: nil)
