@@ -5,7 +5,7 @@
     <key>CFBundleName</key>
     <string>Quick Access</string>
     <key>CFBundleIdentifier</key>
-    <string>com.pzac.QuickAccess</string>
+    <string>net.pzac.QuickAccess</string>
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>CFBundleShortVersionString</key>
