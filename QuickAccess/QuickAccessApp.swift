@@ -23,12 +23,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem.button {
-            if let img = NSImage(systemSymbolName: "folder.badge.star", accessibilityDescription: "Quick Access") {
-                img.isTemplate = true
-                button.image = img
-            } else {
-                button.title = "QA"
-            }
+            button.image = makeMenuBarIcon()
         }
 
         rebuildMenu()
@@ -138,5 +133,41 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func isDirectory(atPath path: String) -> Bool {
         var isDir: ObjCBool = false
         return FileManager.default.fileExists(atPath: path, isDirectory: &isDir) && isDir.boolValue
+    }
+
+    private func makeMenuBarIcon() -> NSImage {
+        let size = NSSize(width: 18, height: 18)
+        let image = NSImage(size: size, flipped: false) { rect in
+            NSGraphicsContext.current?.cgContext.translateBy(x: 0, y: 0)
+            let path = Self.starPath(in: rect.insetBy(dx: 1, dy: 1))
+            NSColor.black.setFill()
+            path.fill()
+            return true
+        }
+        image.isTemplate = true
+        return image
+    }
+
+    static func starPath(in rect: NSRect) -> NSBezierPath {
+        let cx = rect.midX
+        let cy = rect.midY
+        let outerRadius = min(rect.width, rect.height) / 2.0
+        let innerRadius = outerRadius * 0.38
+        let points = 5
+        let path = NSBezierPath()
+
+        for i in 0..<(points * 2) {
+            let radius = (i % 2 == 0) ? outerRadius : innerRadius
+            let angle = (CGFloat(i) * .pi / CGFloat(points)) - (.pi / 2)
+            let x = cx + radius * cos(angle)
+            let y = cy + radius * sin(angle)
+            if i == 0 {
+                path.move(to: NSPoint(x: x, y: y))
+            } else {
+                path.line(to: NSPoint(x: x, y: y))
+            }
+        }
+        path.close()
+        return path
     }
 }
