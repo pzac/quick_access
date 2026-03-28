@@ -86,6 +86,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
+        let aboutItem = NSMenuItem(title: "About Quick Access", action: #selector(showAbout), keyEquivalent: "")
+        aboutItem.target = self
+        menu.addItem(aboutItem)
+
         let quitItem = NSMenuItem(title: "Quit Quick Access", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
@@ -124,6 +128,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func removeFavorite(_ sender: NSMenuItem) {
         let path = favoritesManager.favorites[sender.tag]
         favoritesManager.remove(path)
+    }
+
+    @objc func showAbout() {
+        NSApp.activate(ignoringOtherApps: true)
+        let alert = NSAlert()
+        alert.messageText = "Quick Access"
+        alert.informativeText = "Version 1.0\n\nA menu bar app for quick access to your favourite files and folders.\n\n© 2026 pzac.net"
+        alert.alertStyle = .informational
+        if let icon = NSImage(named: "AppIcon") ?? NSApp.applicationIconImage {
+            alert.icon = icon
+        }
+        alert.runModal()
     }
 
     @objc func quit() {
