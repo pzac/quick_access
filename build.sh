@@ -3,7 +3,7 @@ set -e
 
 APP_NAME="Quick Access"
 BUNDLE="${APP_NAME}.app"
-SOURCES="QuickAccess/QuickAccessApp.swift QuickAccess/FavoritesManager.swift"
+SOURCES="QuickAccess/QuickAccessApp.swift QuickAccess/FavoritesManager.swift QuickAccess/PreferencesView.swift"
 
 echo "Building ${APP_NAME}..."
 

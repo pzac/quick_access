@@ -16,6 +16,7 @@ struct QuickAccessApp: App {
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
+    var preferencesWindow: NSWindow?
     let favoritesManager = FavoritesManager.shared
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -68,34 +69,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
-        let addItem = NSMenuItem(title: "Add File or Folder…", action: #selector(addFavorite), keyEquivalent: "a")
-        addItem.target = self
-        menu.addItem(addItem)
-
-        if !favorites.isEmpty {
-            let removeSubmenu = NSMenu()
-            for (index, path) in favorites.enumerated() {
-                let item = NSMenuItem(title: path, action: #selector(removeFavorite(_:)), keyEquivalent: "")
-                item.target = self
-                item.tag = index
-                removeSubmenu.addItem(item)
-            }
-            removeSubmenu.addItem(NSMenuItem.separator())
-            let removeAllItem = NSMenuItem(title: "Remove All", action: #selector(removeAllFavorites), keyEquivalent: "")
-            removeAllItem.target = self
-            removeSubmenu.addItem(removeAllItem)
-
-            let removeItem = NSMenuItem(title: "Remove…", action: nil, keyEquivalent: "")
-            removeItem.submenu = removeSubmenu
-            menu.addItem(removeItem)
-        }
-
-        menu.addItem(NSMenuItem.separator())
-
-        let loginItem = NSMenuItem(title: "Start at Login", action: #selector(toggleLoginItem(_:)), keyEquivalent: "")
-        loginItem.target = self
-        loginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
-        menu.addItem(loginItem)
+        let prefsItem = NSMenuItem(title: "Preferences…", action: #selector(showPreferences), keyEquivalent: ",")
+        prefsItem.target = self
+        menu.addItem(prefsItem)
 
         menu.addItem(NSMenuItem.separator())
 
@@ -121,58 +97,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    @objc func addFavorite() {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = true
-        panel.message = "Select files or folders to add to Quick Access"
-        panel.prompt = "Add"
-
+    @objc func showPreferences() {
         NSApp.activate(ignoringOtherApps: true)
 
-        if panel.runModal() == .OK {
-            for url in panel.urls {
-                favoritesManager.add(url.path)
-            }
+        if let window = preferencesWindow, window.isVisible {
+            window.makeKeyAndOrderFront(nil)
+            return
         }
-    }
 
-    @objc func removeFavorite(_ sender: NSMenuItem) {
-        let path = favoritesManager.favorites[sender.tag]
-        favoritesManager.remove(path)
-    }
-
-    @objc func removeAllFavorites() {
-        let alert = NSAlert()
-        alert.messageText = "Remove all favorites?"
-        alert.informativeText = "This cannot be undone."
-        alert.alertStyle = .warning
-        alert.addButton(withTitle: "Remove All")
-        alert.addButton(withTitle: "Cancel")
-        NSApp.activate(ignoringOtherApps: true)
-        if alert.runModal() == .alertFirstButtonReturn {
-            favoritesManager.removeAll()
-        }
-    }
-
-    @objc func toggleLoginItem(_ sender: NSMenuItem) {
-        let service = SMAppService.mainApp
-        do {
-            if service.status == .enabled {
-                try service.unregister()
-            } else {
-                try service.register()
-            }
-        } catch {
-            let alert = NSAlert()
-            alert.messageText = "Could not update login item"
-            alert.informativeText = error.localizedDescription
-            alert.alertStyle = .warning
-            NSApp.activate(ignoringOtherApps: true)
-            alert.runModal()
-        }
-        rebuildMenu()
+        let view = PreferencesView()
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 500, height: 350),
+            styleMask: [.titled, .closable, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "Quick Access Preferences"
+        window.contentView = NSHostingView(rootView: view)
+        window.center()
+        window.isReleasedWhenClosed = false
+        window.makeKeyAndOrderFront(nil)
+        preferencesWindow = window
     }
 
     @objc func showAbout() {

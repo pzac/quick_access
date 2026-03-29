@@ -1,34 +1,40 @@
 import Foundation
 
-class FavoritesManager {
+class FavoritesManager: ObservableObject {
     static let shared = FavoritesManager()
     static let didChangeNotification = Notification.Name("FavoritesDidChange")
 
     private let key = "favorites"
 
-    var favorites: [String] {
-        UserDefaults.standard.stringArray(forKey: key) ?? []
+    @Published var favorites: [String] = []
+
+    init() {
+        favorites = UserDefaults.standard.stringArray(forKey: key) ?? []
     }
 
     func add(_ path: String) {
-        var current = favorites
-        guard !current.contains(path) else { return }
-        current.append(path)
-        save(current)
+        guard !favorites.contains(path) else { return }
+        favorites.append(path)
+        save()
     }
 
     func remove(_ path: String) {
-        var current = favorites
-        current.removeAll { $0 == path }
-        save(current)
+        favorites.removeAll { $0 == path }
+        save()
     }
 
     func removeAll() {
-        save([])
+        favorites.removeAll()
+        save()
     }
 
-    private func save(_ items: [String]) {
-        UserDefaults.standard.set(items, forKey: key)
+    func move(fromOffsets source: IndexSet, toOffset destination: Int) {
+        favorites.move(fromOffsets: source, toOffset: destination)
+        save()
+    }
+
+    private func save() {
+        UserDefaults.standard.set(favorites, forKey: key)
         NotificationCenter.default.post(name: Self.didChangeNotification, object: nil)
     }
 }
