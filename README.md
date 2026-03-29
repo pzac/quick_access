@@ -4,6 +4,8 @@ A macOS menu bar app for quick access to your favourite files and folders.
 
 This was an experiment to see how Claude Code deals with MacOs apps.
 
+![screenshot](screenshot.png)
+
 ## Features
 
 - Add files and directories to a favorites list
